@@ -46,7 +46,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
 
     //remove shop from chest
     @Override
-    public void playerWillDestroy(Level world, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+    public BlockState playerWillDestroy(Level world, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!world.isClientSide() && ((SignBlockEntityInterface) Objects.requireNonNull(world.getBlockEntity(pos))).diamondchestshop_getShop()) {
             BlockPos hangingPos = pos.offset(state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepX(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepY(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepZ());
             List<ItemEntity> entities = world.getEntitiesOfClass(ItemEntity.class, new AABB(new BlockPos(hangingPos.getX() - 2, hangingPos.getY() - 2, hangingPos.getZ() - 2), new BlockPos(hangingPos.getX() + 2, hangingPos.getY() + 2, hangingPos.getZ() + 2)));
@@ -62,6 +62,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                 shop.setChanged();
             }
         }
+        return state;
     }
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)

@@ -1,8 +1,9 @@
 package com.gmail.sneakdevs.diamondchestshop.mixin;
 
 import com.gmail.sneakdevs.diamondchestshop.interfaces.SignBlockEntityInterface;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -50,21 +51,18 @@ public class SignBlockEntityMixin implements SignBlockEntityInterface {
     }
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
-    private void diamondchestshop_saveAdditionalMixin(CompoundTag nbt, CallbackInfo ci) {
-        if (this.diamondchestshop_owner == null) diamondchestshop_owner = "";
-        if (this.diamondchestshop_isShop) nbt.putUUID("diamondchestshop_ItemEntity", diamondchestshop_itemEntity);
-        nbt.putString("diamondchestshop_ShopOwner", diamondchestshop_owner);
-        if (!nbt.contains("diamondchestshop_IsShop"))
-            nbt.putBoolean("diamondchestshop_IsShop", diamondchestshop_isShop);
-        if (!nbt.contains("diamondchestshop_IsAdminShop"))
-            nbt.putBoolean("diamondchestshop_IsAdminShop", diamondchestshop_isAdminShop);
+    private void diamondchestshop_saveAdditionalMixin(ValueOutput valueOutput, CallbackInfo ci) {
+        if (this.diamondchestshop_isShop) valueOutput.putString("diamondchestshop_ItemEntity", this.diamondchestshop_itemEntity.toString());
+        valueOutput.putString("diamondchestshop_ShopOwner", (this.diamondchestshop_owner == null) ? "" : this.diamondchestshop_owner);
+        valueOutput.putBoolean("diamondchestshop_IsShop", this.diamondchestshop_isShop);
+        valueOutput.putBoolean("diamondchestshop_IsAdminShop", this.diamondchestshop_isAdminShop);
     }
 
-    @Inject(method = "load", at = @At("TAIL"))
-    private void diamondchestshop_loadMixin(CompoundTag nbt, CallbackInfo ci) {
-        this.diamondchestshop_owner = nbt.getString("diamondchestshop_ShopOwner");
-        this.diamondchestshop_isShop = nbt.getBoolean("diamondchestshop_IsShop");
-        this.diamondchestshop_isAdminShop = nbt.getBoolean("diamondchestshop_IsAdminShop");
-        if (this.diamondchestshop_isShop) this.diamondchestshop_itemEntity = nbt.getUUID("diamondchestshop_ItemEntity");
+    @Inject(method = "loadAdditional", at = @At("TAIL"))
+    private void diamondchestshop_loadMixin(ValueInput valueInput, CallbackInfo ci) {
+        this.diamondchestshop_owner = valueInput.getString("diamondchestshop_ShopOwner").orElse(null);
+        this.diamondchestshop_isShop = valueInput.getBooleanOr("diamondchestshop_IsShop", false);
+        this.diamondchestshop_isAdminShop = valueInput.getBooleanOr("diamondchestshop_IsAdminShop", false);
+        if (this.diamondchestshop_isShop) this.diamondchestshop_itemEntity = UUID.fromString(valueInput.getString("diamondchestshop_ItemEntity").get());
     }
 }

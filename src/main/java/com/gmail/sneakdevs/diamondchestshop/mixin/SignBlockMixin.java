@@ -7,11 +7,13 @@ import com.gmail.sneakdevs.diamondchestshop.interfaces.SignBlockEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -49,10 +51,10 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
     public BlockState playerWillDestroy(Level world, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!world.isClientSide() && ((SignBlockEntityInterface) Objects.requireNonNull(world.getBlockEntity(pos))).diamondchestshop_getShop()) {
             BlockPos hangingPos = pos.offset(state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepX(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepY(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepZ());
-            List<ItemEntity> entities = world.getEntitiesOfClass(ItemEntity.class, new AABB(new BlockPos(hangingPos.getX() - 2, hangingPos.getY() - 2, hangingPos.getZ() - 2), new BlockPos(hangingPos.getX() + 2, hangingPos.getY() + 2, hangingPos.getZ() + 2)));
+            List<ItemEntity> entities = world.getEntitiesOfClass(ItemEntity.class, new AABB(hangingPos.getX() - 2, hangingPos.getY() - 2, hangingPos.getZ() - 2, hangingPos.getX() + 2, hangingPos.getY() + 2, hangingPos.getZ() + 2));
             while (entities.size() > 0) {
                 if (entities.get(0).getUUID().equals(((SignBlockEntityInterface) world.getBlockEntity(pos)).diamondchestshop_getItemEntity())) {
-                    entities.get(0).kill();
+                    entities.get(0).kill((ServerLevel)world);
                 }
                 entities.remove(0);
             }
@@ -65,12 +67,12 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
         return state;
     }
 
-    @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    private void diamondchestshop_useMixin(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!world.isClientSide()) {
-            ItemStack itemStack = player.getItemInHand(hand);
+    @Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
+    private void diamondchestshop_useMixin(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        if (!level.isClientSide()) {
+            ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
             Item item = itemStack.getItem();
-            SignBlockEntity signEntity = (SignBlockEntity)world.getBlockEntity(pos);
+            SignBlockEntity signEntity = (SignBlockEntity)level.getBlockEntity(blockPos);
             if (signEntity == null) return;
             SignBlockEntityInterface iSign = (SignBlockEntityInterface) signEntity;
 
@@ -86,7 +88,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
             }
 
             //create the chest shop
-            if (!item.equals(BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[0])))) {
+            if (!item.equals(BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(DiamondEconomyConfig.getInstance().currencies[0])).get().value())) {
                 return;
             }
 
@@ -96,8 +98,8 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                 return;
             }
 
-            BlockPos hangingPos = pos.offset(state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepX(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepY(), state.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepZ());
-            BlockEntity chestEntity = world.getBlockEntity(hangingPos);
+            BlockPos hangingPos = blockPos.offset(blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepX(), blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepY(), blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepZ());
+            BlockEntity chestEntity = level.getBlockEntity(hangingPos);
             if (!(chestEntity instanceof RandomizableContainerBlockEntity shop)) {
                 player.displayClientMessage(Component.literal("Sign must be on a valid container"), true);
                 cir.setReturnValue(InteractionResult.PASS);
@@ -139,7 +141,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                         String itemStr = BuiltInRegistries.ITEM.getKey(player.getOffhandItem().getItem()).toString();
                         iShop.diamondchestshop_setItem(itemStr);
                         try {
-                            String tag = player.getOffhandItem().getTag().getAsString();
+                            String tag = player.getOffhandItem().getOrDefault(DataComponents.CUSTOM_DATA, "{}").toString();
                             iShop.diamondchestshop_setTag(tag);
                             iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, tag));
                         } catch (NullPointerException ignored) {
@@ -150,20 +152,20 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                         signEntity.setChanged();
                         shop.setChanged();
 
-                        ItemEntity itemEntity = EntityType.ITEM.create(world);
-                        itemEntity.setItem(new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getMaxStackSize())));
+                        ItemEntity itemEntity = EntityType.ITEM.create(level, EntitySpawnReason.TRIGGERED);
+                        itemEntity.setItem(new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getDefaultMaxStackSize())));
                         itemEntity.setUnlimitedLifetime();
                         itemEntity.setNeverPickUp();
                         itemEntity.setInvulnerable(true);
                         itemEntity.setNoGravity(true);
                         itemEntity.setPos(new Vec3(hangingPos.getX() + 0.5, hangingPos.getY() + 1.05, hangingPos.getZ() + 0.5));
                         ((ItemEntityInterface) itemEntity).diamondchestshop_setShop(true);
-                        world.addFreshEntity(itemEntity);
+                        level.addFreshEntity(itemEntity);
                         ((SignBlockEntityInterface) signEntity).diamondchestshop_setItemEntity(itemEntity.getUUID());
-                        BlockState shopBlock = world.getBlockState(hangingPos);
+                        BlockState shopBlock = level.getBlockState(hangingPos);
                         if (shopBlock.getBlock().equals(Blocks.CHEST) && !ChestBlock.getBlockType(shopBlock).equals(DoubleBlockCombiner.BlockType.SINGLE)) {
                             Direction dir = ChestBlock.getConnectedDirection(shopBlock);
-                            BlockEntity be2 = world.getBlockEntity(new BlockPos(shop.getBlockPos().getX() + dir.getStepX(), shop.getBlockPos().getY(), shop.getBlockPos().getZ() + dir.getStepZ()));
+                            BlockEntity be2 = level.getBlockEntity(new BlockPos(shop.getBlockPos().getX() + dir.getStepX(), shop.getBlockPos().getY(), shop.getBlockPos().getZ() + dir.getStepZ()));
                             if (be2 != null) {
                                 ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(true);
                             }

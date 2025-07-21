@@ -5,13 +5,14 @@ import com.gmail.sneakdevs.diamondchestshop.config.DiamondChestShopConfig;
 import com.gmail.sneakdevs.diamondchestshop.interfaces.BaseContainerBlockEntityInterface;
 import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -63,24 +64,24 @@ public abstract class BaseContainerBlockEntityMixin extends BlockEntity implemen
     }
 
     @Inject(method = "saveAdditional", at = @At("TAIL"))
-    private void diamondchestshop_saveAdditionalMixin(CompoundTag nbt, CallbackInfo ci) {
+    private void diamondchestshop_saveAdditionalMixin(ValueOutput valueOutput, CallbackInfo ci) {
         if (diamondchestshop_owner == null) diamondchestshop_owner = "";
-        nbt.putString("diamondchestshop_ShopOwner", diamondchestshop_owner);
-        nbt.putBoolean("diamondchestshop_IsShop", diamondchestshop_isShop);
-        nbt.putInt("diamondchestshop_Id", diamondchestshop_id);
+        valueOutput.putString("diamondchestshop_ShopOwner", diamondchestshop_owner);
+        valueOutput.putBoolean("diamondchestshop_IsShop", diamondchestshop_isShop);
+        valueOutput.putInt("diamondchestshop_Id", diamondchestshop_id);
     }
 
-    @Inject(method = "load", at = @At("TAIL"))
-    private void diamondchestshop_loadMixin(CompoundTag nbt, CallbackInfo ci) {
-        diamondchestshop_isShop = nbt.getBoolean("diamondchestshop_IsShop");
-        diamondchestshop_owner = nbt.getString("diamondchestshop_ShopOwner");
-        if (nbt.getString("diamondchestshop_NBT").length() > 1) {
-            diamondchestshop_item = nbt.getString("diamondchestshop_ShopItem");
-            diamondchestshop_nbt = nbt.getString("diamondchestshop_NBT");
+    @Inject(method = "loadAdditional", at = @At("TAIL"))
+    private void diamondchestshop_loadMixin(ValueInput valueInput, CallbackInfo ci) {
+        diamondchestshop_isShop = valueInput.getBooleanOr("diamondchestshop_IsShop", false);
+        diamondchestshop_owner = valueInput.getString("diamondchestshop_ShopOwner").orElse(null);
+        if (valueInput.getString("diamondchestshop_NBT").orElse("").length() > 1) {
+            diamondchestshop_item = valueInput.getString("diamondchestshop_ShopItem").get();
+            diamondchestshop_nbt = valueInput.getString("diamondchestshop_NBT").get();
             diamondchestshop_id = DiamondChestShop.getDatabaseManager().addShop(diamondchestshop_item, diamondchestshop_nbt);
         } else {
-            if (nbt.getInt("diamondchestshop_Id") > 0) {
-                diamondchestshop_id = nbt.getInt("diamondchestshop_Id");
+            if (valueInput.getInt("diamondchestshop_Id").orElse(0) > 0) {
+                diamondchestshop_id = valueInput.getInt("diamondchestshop_Id").get();
                 diamondchestshop_item = DiamondChestShop.getDatabaseManager().getItem(diamondchestshop_id);
                 diamondchestshop_nbt = DiamondChestShop.getDatabaseManager().getNbt(diamondchestshop_id);
             }

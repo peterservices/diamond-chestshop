@@ -5,11 +5,15 @@ import com.gmail.sneakdevs.diamondchestshop.interfaces.BaseContainerBlockEntityI
 import com.gmail.sneakdevs.diamondchestshop.interfaces.ItemEntityInterface;
 import com.gmail.sneakdevs.diamondchestshop.interfaces.SignBlockEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -140,14 +144,11 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                         iShop.diamondchestshop_setShop(true);
                         String itemStr = BuiltInRegistries.ITEM.getKey(player.getOffhandItem().getItem()).toString();
                         iShop.diamondchestshop_setItem(itemStr);
-                        try {
-                            String tag = player.getOffhandItem().getOrDefault(DataComponents.CUSTOM_DATA, "{}").toString();
-                            iShop.diamondchestshop_setTag(tag);
-                            iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, tag));
-                        } catch (NullPointerException ignored) {
-                            iShop.diamondchestshop_setTag("{}");
-                            iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, "{}"));
-                        }
+                        DataComponentMap components = player.getOffhandItem().getComponents();
+                        RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, level.registryAccess());
+                        String tag = DataComponentMap.CODEC.encodeStart(registryOps, components).getOrThrow().toString();
+                        iShop.diamondchestshop_setTag(tag);
+                        iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, tag));
                         signEntity.setWaxed(true);
                         signEntity.setChanged();
                         shop.setChanged();

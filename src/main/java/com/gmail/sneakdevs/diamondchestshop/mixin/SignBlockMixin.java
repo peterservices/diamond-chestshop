@@ -136,49 +136,56 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                 return;
             }
 
-                int quantity = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(1,true).getString()));
-                int money = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(2,true).getString()));
-                if (quantity >= 1) {
-                    if (money >= 0) {
-                        iSign.diamondchestshop_setShop(true);
-                        iShop.diamondchestshop_setShop(true);
-                        String itemStr = BuiltInRegistries.ITEM.getKey(player.getOffhandItem().getItem()).toString();
-                        iShop.diamondchestshop_setItem(itemStr);
-                        DataComponentMap components = player.getOffhandItem().getComponents();
-                        RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, level.registryAccess());
-                        String tag = DataComponentMap.CODEC.encodeStart(registryOps, components).getOrThrow().toString();
-                        iShop.diamondchestshop_setTag(tag);
-                        iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, tag));
-                        signEntity.setWaxed(true);
-                        signEntity.setChanged();
-                        shop.setChanged();
-
-                        ItemEntity itemEntity = EntityType.ITEM.create(level, EntitySpawnReason.TRIGGERED);
-                        itemEntity.setItem(new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getDefaultMaxStackSize())));
-                        itemEntity.setUnlimitedLifetime();
-                        itemEntity.setNeverPickUp();
-                        itemEntity.setInvulnerable(true);
-                        itemEntity.setNoGravity(true);
-                        itemEntity.setPos(new Vec3(hangingPos.getX() + 0.5, hangingPos.getY() + 1.05, hangingPos.getZ() + 0.5));
-                        ((ItemEntityInterface) itemEntity).diamondchestshop_setShop(true);
-                        level.addFreshEntity(itemEntity);
-                        ((SignBlockEntityInterface) signEntity).diamondchestshop_setItemEntity(itemEntity.getUUID());
-                        BlockState shopBlock = level.getBlockState(hangingPos);
-                        if (shopBlock.getBlock().equals(Blocks.CHEST) && !ChestBlock.getBlockType(shopBlock).equals(DoubleBlockCombiner.BlockType.SINGLE)) {
-                            Direction dir = ChestBlock.getConnectedDirection(shopBlock);
-                            BlockEntity be2 = level.getBlockEntity(new BlockPos(shop.getBlockPos().getX() + dir.getStepX(), shop.getBlockPos().getY(), shop.getBlockPos().getZ() + dir.getStepZ()));
-                            if (be2 != null) {
-                                ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(true);
-                            }
-                        }
-                        player.displayClientMessage(Component.literal("Created shop with " + quantity + " " + Component.translatable(player.getOffhandItem().getItem().getDescriptionId()).getString() + (signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("sell") ? (((signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("buy")) ? " sold and bought" : " sold")) : " bought") + " for $" + money), true);
-                    } else {
-                        player.displayClientMessage(Component.literal("Negative prices are not allowed"), true);
-                    }
-                } else {
-                    player.displayClientMessage(Component.literal("Positive quantity required"), true);
-                }
+            int quantity;
+            int money;
+            try {
+                 quantity = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(1, true).getString()));
+                 money = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(2, true).getString()));
+            } catch (NumberFormatException e) {
+                player.displayClientMessage(Component.literal("The second and third lines must contain numbers."), true);
                 cir.setReturnValue(InteractionResult.PASS);
+                return;
+            }
+            if (quantity >= 1) {
+                if (money >= 0) {
+                    iSign.diamondchestshop_setShop(true);
+                    iShop.diamondchestshop_setShop(true);
+                    String itemStr = BuiltInRegistries.ITEM.getKey(player.getOffhandItem().getItem()).toString();
+                    iShop.diamondchestshop_setItem(itemStr);
+                    DataComponentMap components = player.getOffhandItem().getComponents();
+                    RegistryOps<JsonElement> registryOps = RegistryOps.create(JsonOps.INSTANCE, level.registryAccess());
+                    String tag = DataComponentMap.CODEC.encodeStart(registryOps, components).getOrThrow().toString();
+                    iShop.diamondchestshop_setTag(tag);
+                    iShop.diamondchestshop_setId(DiamondChestShop.getDatabaseManager().addShop(itemStr, tag));
+                    signEntity.setWaxed(true);
+                    signEntity.setChanged();
+                    shop.setChanged();
+                    ItemEntity itemEntity = EntityType.ITEM.create(level, EntitySpawnReason.TRIGGERED);
+                    itemEntity.setItem(new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getDefaultMaxStackSize())));
+                    itemEntity.setUnlimitedLifetime();
+                    itemEntity.setNeverPickUp();
+                    itemEntity.setInvulnerable(true);
+                    itemEntity.setNoGravity(true);
+                    itemEntity.setPos(new Vec3(hangingPos.getX() + 0.5, hangingPos.getY() + 1.05, hangingPos.getZ() + 0.5));
+                    ((ItemEntityInterface) itemEntity).diamondchestshop_setShop(true);
+                    level.addFreshEntity(itemEntity);
+                    ((SignBlockEntityInterface) signEntity).diamondchestshop_setItemEntity(itemEntity.getUUID());
+                    BlockState shopBlock = level.getBlockState(hangingPos);
+                    if (shopBlock.getBlock().equals(Blocks.CHEST) && !ChestBlock.getBlockType(shopBlock).equals(DoubleBlockCombiner.BlockType.SINGLE)) {
+                        Direction dir = ChestBlock.getConnectedDirection(shopBlock);
+                        BlockEntity be2 = level.getBlockEntity(new BlockPos(shop.getBlockPos().getX() + dir.getStepX(), shop.getBlockPos().getY(), shop.getBlockPos().getZ() + dir.getStepZ()));
+                        if (be2 != null) {
+                            ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(true);
+                        }
+                    }
+                    player.displayClientMessage(Component.literal("Created shop with " + quantity + " " + Component.translatable(player.getOffhandItem().getItem().getDescriptionId()).getString() + (signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("sell") ? (((signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("buy")) ? " sold and bought" : " sold")) : " bought") + " for $" + money), true);
+                } else {
+                    player.displayClientMessage(Component.literal("Negative prices are not allowed"), true);
+                }
+            } else {
+                player.displayClientMessage(Component.literal("Positive quantity required"), true);
+            }
+            cir.setReturnValue(InteractionResult.PASS);
         }
     }
 }

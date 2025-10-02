@@ -1,9 +1,9 @@
-Chestshop mod using the diamond economy currency mod.
+Chestshop mod using the diamond economy currency mod. Use the "/diamonds chestshop" command to see instructions on how to create a chest shop.
 
 
-Github Releases are likely not to work
+Download:
+- See GitHub Releases for compiled jars from this repository
 
-Downloads:
-https://modrinth.com/mod/diamond-chest-shops
-
-https://www.curseforge.com/minecraft/mc-mods/diamond-chest-shops
+Otherwise, the official downloads are located here:
+- https://www.curseforge.com/minecraft/mc-mods/diamond-chest-shops
+- https://modrinth.com/mod/diamond-chest-shops

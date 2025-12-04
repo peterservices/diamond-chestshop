@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -71,10 +72,9 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
         return state;
     }
 
-    @Inject(method = "useWithoutItem", at = @At("HEAD"), cancellable = true)
-    private void diamondchestshop_useMixin(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+    @Inject(method = "useItemOn", at = @At("HEAD"), cancellable = true)
+    private void diamondchestshop_useMixin(ItemStack itemStack, BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (!level.isClientSide()) {
-            ItemStack itemStack = player.getItemInHand(player.getUsedItemHand());
             Item item = itemStack.getItem();
             SignBlockEntity signEntity = (SignBlockEntity)level.getBlockEntity(blockPos);
             if (signEntity == null) return;

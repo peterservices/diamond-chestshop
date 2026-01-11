@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
@@ -133,7 +133,7 @@ public class ServerPlayerGameModeMixin {
             RandomizableContainerBlockEntity shop = (RandomizableContainerBlockEntity) level.getBlockEntity(hangingPos);
             assert shop != null;
             String owner = ((BaseContainerBlockEntityInterface) shop).diamondchestshop_getOwner();
-            Item sellItem = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
+            Item sellItem = BuiltInRegistries.ITEM.get(Identifier.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
 
             if (dm.getBalanceFromUUID(player.getStringUUID()) < money) {
                 player.displayClientMessage(Component.literal("You don't have enough money"), true);
@@ -215,7 +215,7 @@ public class ServerPlayerGameModeMixin {
             RandomizableContainerBlockEntity shop = (RandomizableContainerBlockEntity) level.getBlockEntity(hangingPos);
             assert shop != null;
             String owner = ((BaseContainerBlockEntityInterface) shop).diamondchestshop_getOwner();
-            Item buyItem = BuiltInRegistries.ITEM.get(ResourceLocation.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
+            Item buyItem = BuiltInRegistries.ITEM.get(Identifier.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
 
             if (dm.getBalanceFromUUID(owner) < money && !((SignBlockEntityInterface) be).diamondchestshop_getAdminShop()) {
                 player.displayClientMessage(Component.literal("The owner hasn't got enough money"), true);

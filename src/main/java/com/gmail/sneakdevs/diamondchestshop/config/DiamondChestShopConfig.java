@@ -14,8 +14,6 @@ public class DiamondChestShopConfig implements ConfigData {
     public boolean shopProtectExplosion = true;
     public boolean shopProtectPiston = true;
     public boolean shopProtectHopper = true;
-    @Comment("Note: currently doesn't protect double chests")
-    public boolean shopProtectHopperMinecart = true;
 
     @Comment("Whether or not to use the base diamond economy command")
     public boolean useBaseCommand = true;

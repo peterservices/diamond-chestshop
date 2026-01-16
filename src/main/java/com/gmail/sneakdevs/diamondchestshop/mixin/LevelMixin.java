@@ -30,6 +30,12 @@ public class LevelMixin {
         }
         if (be instanceof BaseContainerBlockEntity && ((BaseContainerBlockEntityInterface) be).diamondchestshop_getId() > 0) {
             DiamondChestShop.getDatabaseManager().removeShop(((BaseContainerBlockEntityInterface) be).diamondchestshop_getId());
+            BlockState shopState = be.getBlockState();
+            if (shopState.getBlock().equals(Blocks.CHEST) && !ChestBlock.getBlockType(shopState).equals(DoubleBlockCombiner.BlockType.SINGLE)) {
+                Direction dir = ChestBlock.getConnectedDirection(shopState);
+                BlockEntity be2 = ((Level) (Object) this).getBlockEntity(new BlockPos(be.getBlockPos().getX() + dir.getStepX(), be.getBlockPos().getY(), be.getBlockPos().getZ() + dir.getStepZ()));
+                ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(false);
+            }
         }
     }
 
@@ -41,6 +47,12 @@ public class LevelMixin {
         }
         if (be instanceof BaseContainerBlockEntity && ((BaseContainerBlockEntityInterface)be).diamondchestshop_getId() > 0) {
             DiamondChestShop.getDatabaseManager().removeShop(((BaseContainerBlockEntityInterface) be).diamondchestshop_getId());
+            BlockState shopState = be.getBlockState();
+            if (shopState.getBlock().equals(Blocks.CHEST) && !ChestBlock.getBlockType(shopState).equals(DoubleBlockCombiner.BlockType.SINGLE)) {
+                Direction dir = ChestBlock.getConnectedDirection(shopState);
+                BlockEntity be2 = ((Level) (Object) this).getBlockEntity(new BlockPos(be.getBlockPos().getX() + dir.getStepX(), be.getBlockPos().getY(), be.getBlockPos().getZ() + dir.getStepZ()));
+                ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(false);
+            }
         }
     }
 

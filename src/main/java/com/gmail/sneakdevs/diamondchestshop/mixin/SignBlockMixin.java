@@ -85,7 +85,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                 if (item.equals(Items.COMMAND_BLOCK)) {
                     iSign.diamondchestshop_setAdminShop(!iSign.diamondchestshop_getAdminShop());
                     signEntity.setChanged();
-                    player.displayClientMessage(Component.literal((iSign.diamondchestshop_getAdminShop()) ? "Created admin shop" : "Removed admin shop"), true);
+                    player.sendOverlayMessage(Component.literal((iSign.diamondchestshop_getAdminShop()) ? "Created admin shop" : "Removed admin shop"));
                     cir.setReturnValue(InteractionResult.PASS);
                     return;
                 }
@@ -97,7 +97,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
             }
 
             if (iSign.diamondchestshop_getShop()) {
-                player.displayClientMessage(Component.literal("This is already a shop"), true);
+                player.sendOverlayMessage(Component.literal("This is already a shop"));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
@@ -105,7 +105,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
             BlockPos hangingPos = blockPos.offset(blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepX(), blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepY(), blockState.getValue(HorizontalDirectionalBlock.FACING).getOpposite().getStepZ());
             BlockEntity chestEntity = level.getBlockEntity(hangingPos);
             if (!(chestEntity instanceof RandomizableContainerBlockEntity shop)) {
-                player.displayClientMessage(Component.literal("Sign must be on a valid container"), true);
+                player.sendOverlayMessage(Component.literal("Sign must be on a valid container"));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
@@ -113,25 +113,25 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
             BaseContainerBlockEntityInterface iShop = ((BaseContainerBlockEntityInterface) shop);
 
             if (!iSign.diamondchestshop_getOwner().equals(player.getStringUUID()) || !iShop.diamondchestshop_getOwner().equals(player.getStringUUID())) {
-                player.displayClientMessage(Component.literal("You must have placed down the sign and chest"), true);
+                player.sendOverlayMessage(Component.literal("You must have placed down the sign and chest"));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
 
             if (player.getOffhandItem().getItem().equals(Items.AIR)) {
-                player.displayClientMessage(Component.literal("The sell item must be in your offhand"), true);
+                player.sendOverlayMessage(Component.literal("The sell item must be in your offhand"));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
 
             if (iShop.diamondchestshop_getShop()) {
-                player.displayClientMessage(Component.literal("That chest already is a shop"), true);
+                player.sendOverlayMessage(Component.literal("That chest already is a shop"));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
 
             if (!signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("sell") && !signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("buy")) {
-                player.displayClientMessage(Component.literal("The first line must be either \"Buy\" or \"Sell\""), true);
+                player.sendOverlayMessage(Component.literal("The first line must be either \"Buy\" or \"Sell\""));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
@@ -142,7 +142,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                  quantity = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(1, true).getString()));
                  money = Integer.parseInt(DiamondChestShop.signTextToReadable(signEntity.getFrontText().getMessage(2, true).getString()));
             } catch (NumberFormatException e) {
-                player.displayClientMessage(Component.literal("The second and third lines must contain numbers."), true);
+                player.sendOverlayMessage(Component.literal("The second and third lines must contain numbers."));
                 cir.setReturnValue(InteractionResult.PASS);
                 return;
             }
@@ -178,12 +178,12 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                             ((BaseContainerBlockEntityInterface) be2).diamondchestshop_setShop(true);
                         }
                     }
-                    player.displayClientMessage(Component.literal("Created shop with " + quantity + " " + Component.translatable(player.getOffhandItem().getItem().getDescriptionId()).getString() + (signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("sell") ? (((signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("buy")) ? " sold and bought" : " sold")) : " bought") + " for $" + money), true);
+                    player.sendOverlayMessage(Component.literal("Created shop with " + quantity + " " + Component.translatable(player.getOffhandItem().getItem().getDescriptionId()).getString() + (signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("sell") ? (((signEntity.getFrontText().getMessage(0,true).getString().toLowerCase().contains("buy")) ? " sold and bought" : " sold")) : " bought") + " for $" + money));
                 } else {
-                    player.displayClientMessage(Component.literal("Negative prices are not allowed"), true);
+                    player.sendOverlayMessage(Component.literal("Negative prices are not allowed"));
                 }
             } else {
-                player.displayClientMessage(Component.literal("Positive quantity required"), true);
+                player.sendOverlayMessage(Component.literal("Positive quantity required"));
             }
             cir.setReturnValue(InteractionResult.PASS);
         }

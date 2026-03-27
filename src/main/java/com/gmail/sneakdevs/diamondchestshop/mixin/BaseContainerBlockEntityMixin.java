@@ -98,7 +98,7 @@ public abstract class BaseContainerBlockEntityMixin extends BlockEntity implemen
                     cir.setReturnValue(true);
                     return;
                 }
-                player.displayClientMessage(Component.literal("Cannot open another player's shop"), true);
+                player.sendOverlayMessage(Component.literal("Cannot open another player's shop"));
                 cir.setReturnValue(false);
             }
         }

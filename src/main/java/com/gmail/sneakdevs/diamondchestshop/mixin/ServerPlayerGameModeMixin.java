@@ -136,11 +136,11 @@ public class ServerPlayerGameModeMixin {
             Item sellItem = BuiltInRegistries.ITEM.get(Identifier.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
 
             if (dm.getBalanceFromUUID(player.getStringUUID()) < money) {
-                player.displayClientMessage(Component.literal("You don't have enough money"), true);
+                player.sendSystemMessage(Component.literal("You don't have enough money"), true);
                 return;
             }
             if (dm.getBalanceFromUUID(owner) + money >= Integer.MAX_VALUE && !((SignBlockEntityInterface) be).diamondchestshop_getAdminShop()) {
-                player.displayClientMessage(Component.literal("The owner is too rich"), true);
+                player.sendSystemMessage(Component.literal("The owner is too rich"), true);
                 return;
             }
 
@@ -161,7 +161,7 @@ public class ServerPlayerGameModeMixin {
                     }
                 }
                 if (itemCount < quantity) {
-                    player.displayClientMessage(Component.literal("The shop is sold out"), true);
+                    player.sendSystemMessage(Component.literal("The shop is sold out"), true);
                     return;
                 }
 
@@ -202,7 +202,7 @@ public class ServerPlayerGameModeMixin {
                 dm.setBalance(owner, dm.getBalanceFromUUID(owner) + money);
             }
 
-            player.displayClientMessage(Component.literal("Bought " + quantity1 + " " + sellItem.getName().getString() + " for $" + money), true);
+            player.sendSystemMessage(Component.literal("Bought " + quantity1 + " " + sellItem.getDefaultInstance().getHoverName().getString() + " for $" + money), true);
         } catch (NumberFormatException | NullPointerException ignored) {}
     }
 
@@ -218,12 +218,12 @@ public class ServerPlayerGameModeMixin {
             Item buyItem = BuiltInRegistries.ITEM.get(Identifier.tryParse(((BaseContainerBlockEntityInterface) shop).diamondchestshop_getItem())).get().value();
 
             if (dm.getBalanceFromUUID(owner) < money && !((SignBlockEntityInterface) be).diamondchestshop_getAdminShop()) {
-                player.displayClientMessage(Component.literal("The owner hasn't got enough money"), true);
+                player.sendSystemMessage(Component.literal("The owner hasn't got enough money"), true);
                 return;
             }
 
             if (dm.getBalanceFromUUID(player.getStringUUID()) + money >= Integer.MAX_VALUE) {
-                player.displayClientMessage(Component.literal("You are too rich"), true);
+                player.sendSystemMessage(Component.literal("You are too rich"), true);
                 return;
             }
 
@@ -235,7 +235,7 @@ public class ServerPlayerGameModeMixin {
                 }
             }
             if (itemCount < quantity) {
-                player.displayClientMessage(Component.literal("You don't have enough of that item"), true);
+                player.sendSystemMessage(Component.literal("You don't have enough of that item"), true);
                 return;
             }
             int emptySpaces = 0;
@@ -256,7 +256,7 @@ public class ServerPlayerGameModeMixin {
                 }
             }
             if (emptySpaces < quantity) {
-                player.displayClientMessage(Component.literal("The chest is full"), true);
+                player.sendSystemMessage(Component.literal("The chest is full"), true);
                 return;
             }
 
@@ -305,7 +305,7 @@ public class ServerPlayerGameModeMixin {
                 dm.setBalance(owner, dm.getBalanceFromUUID(owner) - money);
             }
             dm.setBalance(player.getStringUUID(), dm.getBalanceFromUUID(player.getStringUUID()) + money);
-            player.displayClientMessage(Component.literal("Sold " + quantity + " " + buyItem.getName().getString() + " for $" + money), true);
+            player.sendSystemMessage(Component.literal("Sold " + quantity + " " + buyItem.getDefaultInstance().getHoverName().getString() + " for $" + money), true);
         } catch (NumberFormatException | NullPointerException ignored) {}
     }
 }

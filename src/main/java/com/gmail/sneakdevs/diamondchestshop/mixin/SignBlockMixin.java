@@ -18,8 +18,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -34,7 +32,6 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -160,13 +157,19 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                     signEntity.setWaxed(true);
                     signEntity.setChanged();
                     shop.setChanged();
-                    ItemEntity itemEntity = EntityType.ITEM.create(level, EntitySpawnReason.TRIGGERED);
-                    itemEntity.setItem(new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getDefaultMaxStackSize())));
+                    ItemEntity itemEntity = new ItemEntity(level,
+                            hangingPos.getX() + 0.5,
+                            hangingPos.getY() + 1.05,
+                            hangingPos.getZ() + 0.5,
+                            new ItemStack(player.getOffhandItem().getItem(), Math.min(quantity, player.getOffhandItem().getItem().getDefaultMaxStackSize())),
+                            0,
+                            0,
+                            0
+                    );
                     itemEntity.setUnlimitedLifetime();
                     itemEntity.setNeverPickUp();
                     itemEntity.setInvulnerable(true);
                     itemEntity.setNoGravity(true);
-                    itemEntity.setPos(new Vec3(hangingPos.getX() + 0.5, hangingPos.getY() + 1.05, hangingPos.getZ() + 0.5));
                     ((ItemEntityInterface) itemEntity).diamondchestshop_setShop(true);
                     level.addFreshEntity(itemEntity);
                     ((SignBlockEntityInterface) signEntity).diamondchestshop_setItemEntity(itemEntity.getUUID());

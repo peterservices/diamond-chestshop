@@ -83,7 +83,7 @@ public abstract class SignBlockMixin extends BaseEntityBlock {
                     iSign.diamondchestshop_setAdminShop(!iSign.diamondchestshop_getAdminShop());
                     signEntity.setChanged();
                     player.sendOverlayMessage(Component.literal((iSign.diamondchestshop_getAdminShop()) ? "Created admin shop" : "Removed admin shop"));
-                    cir.setReturnValue(InteractionResult.PASS);
+                    cir.setReturnValue(InteractionResult.SUCCESS);
                     return;
                 }
             }

@@ -2,19 +2,14 @@
   "schemaVersion": 1,
   "id": "diamondchestshop",
   "version": "${version}",
-
   "name": "Diamond Chest Shop",
-  "description": "Adds chest shops for the diamond economy mod",
+  "description": "Fabric Minecraft mod that adds chest shops to Diamond Economy.",
   "authors": [
-    "IAmSneak"
+    "IAmSneak (Original Creator)",
+    "Ticataco"
   ],
-  "contact": {
-    "homepage": "",
-    "sources": ""
-  },
-
+  "contact": {},
   "license": "MIT",
-
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -24,11 +19,10 @@
   "mixins": [
     "diamondchestshop.mixins.json"
   ],
-
   "depends": {
-    "fabricloader": ">=0.18.4",
+    "fabricloader": ">=${fabric_loader_minimum}",
     "fabric-api": "*",
-    "diamondeconomy": ">=1.5.10",
+    "diamondeconomy": ">=${diamond_economy_version}",
     "cloth-config2": "~${cloth_config_version}"
   }
 }

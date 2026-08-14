@@ -5,6 +5,7 @@ import com.gmail.sneakdevs.diamondchestshop.config.DiamondChestShopConfig;
 import com.gmail.sneakdevs.diamondchestshop.interfaces.BaseContainerBlockEntityInterface;
 import com.gmail.sneakdevs.diamondchestshop.interfaces.SignBlockEntityInterface;
 import com.gmail.sneakdevs.diamondeconomy.DiamondUtils;
+import com.gmail.sneakdevs.diamondeconomy.config.DiamondEconomyConfig;
 import com.gmail.sneakdevs.diamondeconomy.sql.DatabaseManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -202,7 +203,7 @@ public class ServerPlayerGameModeMixin {
                 dm.setBalance(owner, dm.getBalanceFromUUID(owner) + money);
             }
 
-            player.sendSystemMessage(Component.literal("Bought " + quantity1 + " " + sellItem.getDefaultInstance().getHoverName().getString() + " for $" + money), true);
+            player.sendSystemMessage(Component.literal("Bought " + quantity1 + " " + sellItem.getDefaultInstance().getHoverName().getString() + " for " + DiamondEconomyConfig.formatCurrency(money)), true);
         } catch (NumberFormatException | NullPointerException ignored) {}
     }
 
@@ -305,7 +306,7 @@ public class ServerPlayerGameModeMixin {
                 dm.setBalance(owner, dm.getBalanceFromUUID(owner) - money);
             }
             dm.setBalance(player.getStringUUID(), dm.getBalanceFromUUID(player.getStringUUID()) + money);
-            player.sendSystemMessage(Component.literal("Sold " + quantity + " " + buyItem.getDefaultInstance().getHoverName().getString() + " for $" + money), true);
+            player.sendSystemMessage(Component.literal("Sold " + quantity + " " + buyItem.getDefaultInstance().getHoverName().getString() + " for " + DiamondEconomyConfig.formatCurrency(money)), true);
         } catch (NumberFormatException | NullPointerException ignored) {}
     }
 }

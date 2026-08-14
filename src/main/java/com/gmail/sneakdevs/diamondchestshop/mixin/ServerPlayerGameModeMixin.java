@@ -186,17 +186,21 @@ public class ServerPlayerGameModeMixin {
             while (quantity > sellItem.getDefaultMaxStackSize()) {
                 ItemStack stack = new ItemStack(sellItem, sellItem.getDefaultMaxStackSize());
                 stack.applyComponents(DiamondChestShop.getComponents(level, ((BaseContainerBlockEntityInterface) shop).diamondchestshop_getNbt()));
-                ItemEntity itemEntity = player.drop(stack, false);
-                assert itemEntity != null;
-                itemEntity.setNoPickUpDelay();
+                if (!player.getInventory().add(stack)) { // Add items to inventory and drop excess
+                    ItemEntity itemEntity = player.drop(stack, false);
+                    assert itemEntity != null;
+                    itemEntity.setNoPickUpDelay();
+                }
                 quantity -= sellItem.getDefaultMaxStackSize();
             }
 
             ItemStack stack2 = new ItemStack(sellItem, quantity);
             stack2.applyComponents(DiamondChestShop.getComponents(level, ((BaseContainerBlockEntityInterface) shop).diamondchestshop_getNbt()));
-            ItemEntity itemEntity2 = player.drop(stack2, true);
-            assert itemEntity2 != null;
-            itemEntity2.setNoPickUpDelay();
+            if (!player.getInventory().add(stack2)) { // Add items to inventory and drop excess
+                ItemEntity itemEntity2 = player.drop(stack2, false);
+                assert itemEntity2 != null;
+                itemEntity2.setNoPickUpDelay();
+            }
 
             dm.setBalance(player.getStringUUID(), dm.getBalanceFromUUID(player.getStringUUID()) - money);
             if (!((SignBlockEntityInterface) be).diamondchestshop_getAdminShop()) {
